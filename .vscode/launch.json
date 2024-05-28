@@ -17,6 +17,7 @@
             "name": "Robocode",
             "request": "launch",
             "mainClass": "robocode.Robocode",
+            "args": "-battle battles/ubi.battle",
             "vmArgs": [
                 "-Xmx512M",
                 "-Djava.security.manager=allow",
@@ -28,7 +29,7 @@
                 "--add-opens=java.base/sun.net.www.protocol.jar=ALL-UNNAMED",
                 "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED",
                 "--add-opens=java.desktop/javax.swing.text=ALL-UNNAMED",
-                "--add-opens=java.desktop/sun.awt=ALL-UNNAMED"
+                "--add-opens=java.desktop/sun.awt=ALL-UNNAMED",
             ],
             "env": {
                 "JAVA_HOME": "/usr/libexec/java_home",

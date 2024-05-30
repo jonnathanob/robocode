@@ -5,6 +5,7 @@ import java.awt.geom.Point2D;
 import java.io.PrintStream;
 
 import robocode.AdvancedRobot;
+import robocode.BulletHitBulletEvent;
 import robocode.BulletMissedEvent;
 import robocode.HitByBulletEvent;
 import robocode.HitRobotEvent;
@@ -15,7 +16,7 @@ import robocode.TurnCompleteCondition;
 import robocode.robotinterfaces.peer.IStandardRobotPeer;
 import robocode.util.Utils;
 
-public class Jonnathan extends AdvancedRobot {
+public class Jonnathan extends Robot {
     PrintStream out;
     IStandardRobotPeer peer;
     boolean onEnemy = false;
@@ -29,18 +30,11 @@ public class Jonnathan extends AdvancedRobot {
         setRadarColor(Color.red);
         setScanColor(Color.red);
         setBulletColor(Color.red);
-        double[] wall = { getBattleFieldWidth(), getX() };
-        for (double d : wall) {
-            System.out.println(d);
-        }
 
         ahead(getBattleFieldWidth() - getX());
         while (true) {
             if (!onEnemy)
-                if (leftTurn)
-                    turnGunLeft(10);
-                else
-                    turnGunRight(10);
+                turnLeft(10);
             else
                 fire(1);
             onEnemy = false;
@@ -64,14 +58,17 @@ public class Jonnathan extends AdvancedRobot {
         int angle = (int) (Math.toDegrees(
                 Utils.normalAbsoluteAngle(getGunHeading() + e.getBearingRadians()))
                 + 0.5);
-        System.out.println(angle);
+        System.out.println(getRadarHeading());
+        System.out.println(getGunHeading());
+        // turnGunLeft(angle);
         if (getEnergy() > 10) {
             fire(3);
             onEnemy = true;
         } else {
-            setTurnRight(Math.random() * 100 + 10);
-            setBack(Math.random() * 180 + 20);
-            waitFor(new TurnCompleteCondition(this));
+            if (getEnergy() >= 1)
+                fire(1);
+            else
+                moveSomewhere(0);
         }
         scan();
         // Utils.normalAbsoluteAngle(Math.atan2(absBearing, distance))
@@ -116,12 +113,11 @@ public class Jonnathan extends AdvancedRobot {
 
     public void onHitByBullet(HitByBulletEvent e) {
         if (leftTurn)
-            setTurnLeft(Math.random() * 100);
+            turnLeft(Math.random() * 100);
         else
-            setTurnRight(Math.random() * 100);
+            turnRight(Math.random() * 100);
         leftTurn = !leftTurn;
-        setAhead(Math.random() * 200 + 20);
-        waitFor(new TurnCompleteCondition(this));
+        back(Math.random() * 200 + 20);
     }
 
     // public void onStatus(StatusEvent e) {
@@ -130,40 +126,40 @@ public class Jonnathan extends AdvancedRobot {
     // public void onBulletHit(BulletHitEvent e) {
     // }
 
-    // public void onBulletHitBullet(BulletHitBulletEvent e) {
-    // }
+    public void onBulletHitBullet(BulletHitBulletEvent e) {
+        System.out.println(e.getBullet().getHeading());
+        moveSomewhere(20);
+    }
 
     public void onBulletMissed(BulletMissedEvent e) {
-        if (leftTurn)
-            setTurnLeft(Math.random() * 100);
-        else
-            setTurnRight(Math.random() * 100);
-        leftTurn = !leftTurn;
-        setAhead(Math.random() * 200 + 20);
-        waitFor(new TurnCompleteCondition(this));
+        moveSomewhere(0);
+        // moveSomewhere();
     }
 
     // public void onDeath(DeathEvent e) {
     // }
 
     public void onHitRobot(HitRobotEvent e) {
-        if (leftTurn)
-            setTurnLeft(Math.random() * 100);
-        else
-            setTurnRight(Math.random() * 100);
-        leftTurn = !leftTurn;
-        setAhead(Math.random() * 200 + 20);
-        waitFor(new TurnCompleteCondition(this));
+        moveSomewhere(90);
     }
 
     public void onHitWall(HitWallEvent e) {
-        if (leftTurn)
-            setTurnLeft(Math.random() * 180);
+        if (e.getBearing() == 0)
+            turnRight(90);
         else
-            setTurnRight(Math.random() * 180);
+            turnLeft(getHeading() % 90);
 
-        setAhead(300);
-        waitFor(new TurnCompleteCondition(this));
+        System.out.println(e.getBearing());
+        ahead(100);
+    }
+
+    void moveSomewhere(int minTurn) {
+        if (leftTurn)
+            turnLeft(Math.random() * 100 + minTurn);
+        else
+            turnRight(Math.random() * 100 + minTurn);
+        leftTurn = !leftTurn;
+        ahead(100);
     }
 
     // public void onRobotDeath(RobotDeathEvent e) {
